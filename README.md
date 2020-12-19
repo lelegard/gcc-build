@@ -32,3 +32,12 @@ Typical scenario:
   patch.
 
 - To test the new GCC on the TSDuck project, run `build-tsduck.sh`.
+
+### Tested GCC versions
+
+| GCC version | Target  | Remarks
+| ----------- | ------- | ------------
+| 4.8.5       | centos8 | Patch needed
+| 6.3.0       | centos8 | Patch needed
+| 7.5.0       | centos8 |
+| 8.3.1       | centos8 | Default compiler on CentOS 8.3
