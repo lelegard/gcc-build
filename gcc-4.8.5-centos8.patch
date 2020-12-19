@@ -1,0 +1,57 @@
+diff -Nur -x BUILD -x mpc -x mpfr -x gmp -x 'mpc-[.0-9]*' -x 'mpfr-[.0-9]*' -x 'gmp-[.0-9]*' gcc-4.8.5/gcc/cp/cfns.h gcc-4.8.5-centos8/gcc/cp/cfns.h
+--- gcc-4.8.5/gcc/cp/cfns.h	2013-01-10 21:38:27.000000000 +0100
++++ gcc-4.8.5-centos8/gcc/cp/cfns.h	2020-12-19 14:26:53.581549953 +0100
+@@ -124,9 +124,6 @@
+ 
+ #ifdef __GNUC__
+ __inline
+-#ifdef __GNUC_STDC_INLINE__
+-__attribute__ ((__gnu_inline__))
+-#endif
+ #endif
+ const char *
+ libc_name_p (register const char *str, register unsigned int len)
+diff -Nur -x BUILD -x mpc -x mpfr -x gmp -x 'mpc-[.0-9]*' -x 'mpfr-[.0-9]*' -x 'gmp-[.0-9]*' gcc-4.8.5/libgcc/config/i386/linux-unwind.h gcc-4.8.5-centos8/libgcc/config/i386/linux-unwind.h
+--- gcc-4.8.5/libgcc/config/i386/linux-unwind.h	2013-02-04 20:06:20.000000000 +0100
++++ gcc-4.8.5-centos8/libgcc/config/i386/linux-unwind.h	2020-12-19 14:24:43.239075960 +0100
+@@ -58,7 +58,7 @@
+   if (*(unsigned char *)(pc+0) == 0x48
+       && *(unsigned long long *)(pc+1) == RT_SIGRETURN_SYSCALL)
+     {
+-      struct ucontext *uc_ = context->cfa;
++      struct ucontext_t *uc_ = context->cfa;
+       /* The void * cast is necessary to avoid an aliasing warning.
+          The aliasing warning is correct, but should not be a problem
+          because it does not alias anything.  */
+@@ -138,7 +138,7 @@
+ 	siginfo_t *pinfo;
+ 	void *puc;
+ 	siginfo_t info;
+-	struct ucontext uc;
++	struct ucontext_t uc;
+       } *rt_ = context->cfa;
+       /* The void * cast is necessary to avoid an aliasing warning.
+          The aliasing warning is correct, but should not be a problem
+diff -Nur -x BUILD -x mpc -x mpfr -x gmp -x 'mpc-[.0-9]*' -x 'mpfr-[.0-9]*' -x 'gmp-[.0-9]*' gcc-4.8.5/libsanitizer/asan/asan_linux.cc gcc-4.8.5-centos8/libsanitizer/asan/asan_linux.cc
+--- gcc-4.8.5/libsanitizer/asan/asan_linux.cc	2013-01-23 12:41:33.000000000 +0100
++++ gcc-4.8.5-centos8/libsanitizer/asan/asan_linux.cc	2020-12-19 14:21:16.823875049 +0100
+@@ -28,6 +28,7 @@
+ #include <stdio.h>
+ #include <unistd.h>
+ #include <unwind.h>
++#include <signal.h>
+ 
+ #if !ASAN_ANDROID
+ // FIXME: where to get ucontext on Android?
+diff -Nur -x BUILD -x mpc -x mpfr -x gmp -x 'mpc-[.0-9]*' -x 'mpfr-[.0-9]*' -x 'gmp-[.0-9]*' gcc-4.8.5/libsanitizer/tsan/tsan_platform_linux.cc gcc-4.8.5-centos8/libsanitizer/tsan/tsan_platform_linux.cc
+--- gcc-4.8.5/libsanitizer/tsan/tsan_platform_linux.cc	2013-02-21 11:57:10.000000000 +0100
++++ gcc-4.8.5-centos8/libsanitizer/tsan/tsan_platform_linux.cc	2020-12-19 14:21:52.911515625 +0100
+@@ -292,7 +292,7 @@
+ #ifndef TSAN_GO
+ int ExtractResolvFDs(void *state, int *fds, int nfd) {
+   int cnt = 0;
+-  __res_state *statp = (__res_state*)state;
++  struct __res_state *statp = (struct __res_state*)state;
+   for (int i = 0; i < MAXNS && cnt < nfd; i++) {
+     if (statp->_u._ext.nsaddrs[i] && statp->_u._ext.nssocks[i] != -1)
+       fds[cnt++] = statp->_u._ext.nssocks[i];

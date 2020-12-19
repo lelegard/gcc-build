@@ -1,0 +1,100 @@
+diff -Nur -x BUILD -x '.*.tar.bz2' -x mpc -x 'mpc-[.0-9]*' -x mpfr -x 'mpfr-[.0-9]*' -x gmp -x 'gmp-[.0-9]*' -x isl -x 'isl-[.0-9]*' gcc-6.3.0/libgcc/config/i386/linux-unwind.h gcc-6.3.0-centos8/libgcc/config/i386/linux-unwind.h
+--- gcc-6.3.0/libgcc/config/i386/linux-unwind.h	2016-01-04 15:30:50.000000000 +0100
++++ gcc-6.3.0-centos8/libgcc/config/i386/linux-unwind.h	2020-12-19 15:48:31.434467136 +0100
+@@ -58,7 +58,7 @@
+   if (*(unsigned char *)(pc+0) == 0x48
+       && *(unsigned long long *)(pc+1) == RT_SIGRETURN_SYSCALL)
+     {
+-      struct ucontext *uc_ = context->cfa;
++      struct ucontext_t *uc_ = context->cfa;
+       /* The void * cast is necessary to avoid an aliasing warning.
+          The aliasing warning is correct, but should not be a problem
+          because it does not alias anything.  */
+@@ -138,7 +138,7 @@
+ 	siginfo_t *pinfo;
+ 	void *puc;
+ 	siginfo_t info;
+-	struct ucontext uc;
++	struct ucontext_t uc;
+       } *rt_ = context->cfa;
+       /* The void * cast is necessary to avoid an aliasing warning.
+          The aliasing warning is correct, but should not be a problem
+diff -Nur -x BUILD -x '.*.tar.bz2' -x mpc -x 'mpc-[.0-9]*' -x mpfr -x 'mpfr-[.0-9]*' -x gmp -x 'gmp-[.0-9]*' -x isl -x 'isl-[.0-9]*' gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_linux.cc gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_linux.cc
+--- gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_linux.cc	2015-11-23 10:07:18.000000000 +0100
++++ gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_linux.cc	2020-12-19 15:49:38.890508857 +0100
+@@ -546,8 +546,7 @@
+ }
+ #endif
+ 
+-uptr internal_sigaltstack(const struct sigaltstack *ss,
+-                         struct sigaltstack *oss) {
++uptr internal_sigaltstack(const void *ss, void* oss) {
+   return internal_syscall(SYSCALL(sigaltstack), (uptr)ss, (uptr)oss);
+ }
+ 
+diff -Nur -x BUILD -x '.*.tar.bz2' -x mpc -x 'mpc-[.0-9]*' -x mpfr -x 'mpfr-[.0-9]*' -x gmp -x 'gmp-[.0-9]*' -x isl -x 'isl-[.0-9]*' gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_linux.h gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_linux.h
+--- gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_linux.h	2015-10-21 09:32:45.000000000 +0200
++++ gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_linux.h	2020-12-19 15:50:09.953066466 +0100
+@@ -28,8 +28,7 @@
+ 
+ // Syscall wrappers.
+ uptr internal_getdents(fd_t fd, struct linux_dirent *dirp, unsigned int count);
+-uptr internal_sigaltstack(const struct sigaltstack* ss,
+-                          struct sigaltstack* oss);
++uptr internal_sigaltstack(const void* ss, void* oss);
+ uptr internal_sigprocmask(int how, __sanitizer_sigset_t *set,
+     __sanitizer_sigset_t *oldset);
+ void internal_sigfillset(__sanitizer_sigset_t *set);
+diff -Nur -x BUILD -x '.*.tar.bz2' -x mpc -x 'mpc-[.0-9]*' -x mpfr -x 'mpfr-[.0-9]*' -x gmp -x 'gmp-[.0-9]*' -x isl -x 'isl-[.0-9]*' gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc
+--- gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc	2015-11-23 10:07:18.000000000 +0100
++++ gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc	2020-12-19 15:51:30.819922699 +0100
+@@ -155,7 +155,6 @@
+ # include <sys/procfs.h>
+ #endif
+ #include <sys/user.h>
+-#include <sys/ustat.h>
+ #include <linux/cyclades.h>
+ #include <linux/if_eql.h>
+ #include <linux/if_plip.h>
+@@ -248,7 +247,16 @@
+ #endif // SANITIZER_LINUX || SANITIZER_FREEBSD
+ 
+ #if SANITIZER_LINUX && !SANITIZER_ANDROID
+-  unsigned struct_ustat_sz = sizeof(struct ustat);
++  // Use pre-computed size of struct ustat to avoid <sys/ustat.h> which
++  // has been removed from glibc 2.28.
++#if defined(__aarch64__) || defined(__s390x__) || defined (__mips64) || defined(__powerpc64__) || defined(__arch64__) || defined(__sparcv9) || defined(__x86_64__)
++#define SIZEOF_STRUCT_USTAT 32
++#elif defined(__arm__) || defined(__i386__) || defined(__mips__) || defined(__powerpc__) || defined(__s390__)
++#define SIZEOF_STRUCT_USTAT 20
++#else
++#error Unknown size of struct ustat
++#endif
++  unsigned struct_ustat_sz = SIZEOF_STRUCT_USTAT;
+   unsigned struct_rlimit64_sz = sizeof(struct rlimit64);
+   unsigned struct_statvfs64_sz = sizeof(struct statvfs64);
+ #endif // SANITIZER_LINUX && !SANITIZER_ANDROID
+diff -Nur -x BUILD -x '.*.tar.bz2' -x mpc -x 'mpc-[.0-9]*' -x mpfr -x 'mpfr-[.0-9]*' -x gmp -x 'gmp-[.0-9]*' -x isl -x 'isl-[.0-9]*' gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_stoptheworld_linux_libcdep.cc gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_stoptheworld_linux_libcdep.cc
+--- gcc-6.3.0/libsanitizer/sanitizer_common/sanitizer_stoptheworld_linux_libcdep.cc	2015-10-21 09:32:45.000000000 +0200
++++ gcc-6.3.0-centos8/libsanitizer/sanitizer_common/sanitizer_stoptheworld_linux_libcdep.cc	2020-12-19 15:52:12.131335822 +0100
+@@ -267,7 +267,7 @@
+ 
+   // Alternate stack for signal handling.
+   InternalScopedBuffer<char> handler_stack_memory(kHandlerStackSize);
+-  struct sigaltstack handler_stack;
++  stack_t handler_stack;
+   internal_memset(&handler_stack, 0, sizeof(handler_stack));
+   handler_stack.ss_sp = handler_stack_memory.data();
+   handler_stack.ss_size = kHandlerStackSize;
+diff -Nur -x BUILD -x '.*.tar.bz2' -x mpc -x 'mpc-[.0-9]*' -x mpfr -x 'mpfr-[.0-9]*' -x gmp -x 'gmp-[.0-9]*' -x isl -x 'isl-[.0-9]*' gcc-6.3.0/libsanitizer/tsan/tsan_platform_linux.cc gcc-6.3.0-centos8/libsanitizer/tsan/tsan_platform_linux.cc
+--- gcc-6.3.0/libsanitizer/tsan/tsan_platform_linux.cc	2016-08-12 10:53:46.000000000 +0200
++++ gcc-6.3.0-centos8/libsanitizer/tsan/tsan_platform_linux.cc	2020-12-19 15:52:38.278967336 +0100
+@@ -291,7 +291,7 @@
+ int ExtractResolvFDs(void *state, int *fds, int nfd) {
+ #if SANITIZER_LINUX
+   int cnt = 0;
+-  __res_state *statp = (__res_state*)state;
++  struct __res_state *statp = (struct __res_state*)state;
+   for (int i = 0; i < MAXNS && cnt < nfd; i++) {
+     if (statp->_u._ext.nsaddrs[i] && statp->_u._ext.nssocks[i] != -1)
+       fds[cnt++] = statp->_u._ext.nssocks[i];
