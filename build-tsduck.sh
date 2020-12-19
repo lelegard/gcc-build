@@ -9,5 +9,5 @@ TSROOT=$(dirname $SCRIPTDIR)/tsduck
 
 make -C $TSROOT BINDIR_SUFFIX=-gcc-$GCCVERSION NOSRT=1 \
      CPP=$GCCBIN/cpp CC=$GCCBIN/gcc GCC=$GCCBIN/gcc CXX=$GCCBIN/g++ LD=$GCCBIN/gcc AR=$GCCBIN/gcc-ar \
-     LDFLAGS_EXTRA="-L$GCCLIB -Wl,-rpath -Wl,$GCCLIB" \
+     LDFLAGS_EXTRA="-L$GCCLIB -Wl,-rpath,$GCCLIB '-Wl,-rpath,\$\$ORIGIN'" \
      -j10 test

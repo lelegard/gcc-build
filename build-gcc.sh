@@ -14,3 +14,5 @@ export CXXFLAGS="$CFLAGS"
     --with-system-zlib --enable-__cxa_atexit --enable-multilib --with-gnu-as \
     --with-gnu-ld --enable-languages="c,c++" --without-x --prefix=$GCCROOT \
     --disable-libunwind-exceptions
+
+make -j10 && make install

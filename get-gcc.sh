@@ -4,7 +4,7 @@ source $(dirname $0)/include.sh
 [[ -d gcc-$GCCVERSION ]] && error "directory gcc-$GCCVERSION already exists"
 [[ -d gcc-$GCCVERSION-$TARGET ]] && error "directory gcc-$GCCVERSION-$TARGET already exists"
 
-TARBALL=gcc-$GCCVERSION.tar.bz2
+TARBALL=gcc-$GCCVERSION.tar.gz
 PATCH=gcc-$GCCVERSION-$TARGET.patch
 URL=https://ftp.gnu.org/gnu/gcc/gcc-$GCCVERSION/$TARBALL
 
