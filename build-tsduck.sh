@@ -8,6 +8,6 @@ TSROOT=$(dirname $SCRIPTDIR)/tsduck
 [[ -d $TSROOT ]] || error "directory $TSROOT not found"
 
 make -C $TSROOT BINDIR_SUFFIX=-gcc-$GCCVERSION NOSRT=1 \
-     CPP=$GCCBIN/cpp CC=$GCCBIN/gcc GCC=$GCCBIN/gcc CXX=$GCCBIN/g++ LD=$GCCBIN/gcc AR=$GCCBIN/gcc-ar \
+     CPP=$GCCBIN/cpp CC=$GCCBIN/gcc GCC=$GCCBIN/gcc CXX=$GCCBIN/g++ AR=$GCCBIN/gcc-ar \
      LDFLAGS_EXTRA="-L$GCCLIB -Wl,-rpath,$GCCLIB '-Wl,-rpath,\$\$ORIGIN'" \
      -j10 test

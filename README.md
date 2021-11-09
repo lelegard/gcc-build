@@ -41,3 +41,10 @@ Typical scenario:
 | 6.3.0       | centos8 | Patch needed
 | 7.5.0       | centos8 |
 | 8.3.1       | centos8 | Default compiler on CentOS 8.3
+
+### Prerequisites
+
+
+On x86_64 systems, the 32-bit versions of the system libraries must be installed first.
+
+On Red Hat systems (Fedora, CentOS), install the following packages: `glibc-devel.i686 libstdc++-devel.i686`
